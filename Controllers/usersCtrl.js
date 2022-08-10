@@ -83,24 +83,11 @@ module.exports = {
     update: (req, res) => {
         let headerAuth = req.headers['authorization'];
         let userId = jwtUtils.getUserId(headerAuth);
-
-        // ----------------------------------------
-        console.log('---------',userId,'--------');
-        // ----------------------------------------
-
         let bio = req.body.bio;
-
-        // --- being tested ---
-        let id = req.params.id;
-        // --------------------
 
         models.Users.findOne({
             attributes: ["id", "bio"],
-
-            // --- being tested id:id (replacing id:userId) ---
-            where: { id: id }
-            // ------------------------------------------------
-
+            where: { id : userId }
         })
         .then(function(userFound) {
             if (userFound) {
@@ -121,32 +108,15 @@ module.exports = {
         let headerAuth = req.headers['authorization'];
         let userId = jwtUtils.getUserId(headerAuth);
 
-        // --- being tested ---
-        let id = req.params.id;
-        // --------------------
-
         models.Users.findOne({
-
-            // --- being tested id:id (replacing id:userId) ---
-            where: { id : id }
-            // ------------------------------------------------
-
+            where: { id : userId }
         })
         .then(function(userFound) {
             if (userFound) {
                 models.Users.destroy({
-
-                    // --- being tested id:id (replacing id:userId) ---
-                    where: { id: id }
-                    // ------------------------------------------------
-
+                    where: { id : userId }
                 })
-                .then(function(userDeleted) {
-                    return res.status(200).json({ "success": "The user has been deleted" });
-                })
-                .catch(function(error) {
-                    return res.status(500).json({ "error": "cannot delete user" });
-                })
+                return res.status(200).json({ "success": "The user has been deleted" });
             } else {
                 return res.status(404).json({ "error": "user not found" });
             }
@@ -189,22 +159,13 @@ module.exports = {
     getUsersProfile: (req, res) => {
         let headerAuth = req.headers['authorization'];
         let userId = jwtUtils.getUserId(headerAuth);
-
-        // --- being tested ---
-        let id = req.params.id;
-        // --------------------
-
-        // if (userId < 0) {
-        //     return res.status(400).json({ "error": "wrong token" });
-        // }
+        if (userId < 0) {
+            return res.status(400).json({ "error": "wrong token" });
+        }
 
         models.Users.findOne({
             attributes: ["id", "email", "firstname", "lastname", "bio"],
-
-            // --- being tested id:id (replacing id:userId) ---
-            where: { id : id }
-            // ------------------------------------------------
-
+            where: { id : userId }
         })
         .then(function(user) {
             if (user) {

@@ -28,7 +28,7 @@ module.exports = {
         allowNull: true,
         type: Sequelize.STRING
       },
-      likescCount: {
+      likesCount: {
         allowNull: true,
         type: Sequelize.INTEGER
       },
