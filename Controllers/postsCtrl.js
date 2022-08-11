@@ -40,7 +40,7 @@ module.exports = {
                     return res.status(500).json({ "error": "cannot create post" });
                 })
             } else {
-                return res.status(404).json({ "error": "user not found" });
+                return res.status(503).json({ "error": "invalid user" });
             }
         })
         .catch(function(error) {
@@ -53,27 +53,41 @@ module.exports = {
         // let limit = parseInt(req.query.limit);
         // let offset = parseInt(req.query.offset);
         // let order = req.query.order;
+        let headerAuth = req.headers['authorization'];
+        let userId = jwtUtils.getUserId(headerAuth);
 
-        models.posts.findAll({
-            attributes: ["id", "userId", "title", "text"]
-            // order: [(order != null) ? order.split(':') : ['title', 'ASC']],
-            // attributes: (fields !== '*' && fields != null) ? fields.split(',') : null,
-            // limit: (!isNaN(limit)) ? limit: null,
-            // offset: (!isNaN(offset)) ? offset: null,
-            // include: [{
-            //     model: models.Users,
-            //     attributes: [ "firstname" ]
-            // }]
+        models.Users.findOne({
+            where: { id : userId }
         })
-        .then(function(posts) {
-            if (posts) {
-                return res.status(200).json( posts );
+        .then(function(userFound) {
+            if (userFound) {
+                models.posts.findAll({
+                    attributes: ["id", "userId", "title", "text"]
+                    // order: [(order != null) ? order.split(':') : ['title', 'ASC']],
+                    // attributes: (fields !== '*' && fields != null) ? fields.split(',') : null,
+                    // limit: (!isNaN(limit)) ? limit: null,
+                    // offset: (!isNaN(offset)) ? offset: null,
+                    // include: [{
+                    //     model: models.Users,
+                    //     attributes: [ "firstname" ]
+                    // }]
+                })
+                .then(function(posts) {
+                    if (posts) {
+                        return res.status(200).json( posts );
+                    } else {
+                        return res.status(404).json({ "error": "no posts found" });
+                    }
+                })
+                .catch(function(error) {
+                    return res.status(500).json({ "error": "invalid fields" });
+                })
             } else {
-                return res.status(404).json({ "error": "no posts found" });
+                return res.status(503).json({ "error": "invalid user" });
             }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "invalid fields" })
+            return res.status(500).json({ "error": "unable to verify user" });
         })
     },
 
@@ -109,7 +123,7 @@ module.exports = {
                     return res.status(404).json({ "error": "post not found" });
                 })
             } else {
-                return res.status(404).json({ "error": "invalid user" });
+                return res.status(503).json({ "error": "invalid user" });
             }
         })
         .catch(function(error) {
@@ -146,7 +160,7 @@ module.exports = {
                     return res.status(404).json({ "error": "post not found" });
                 })
             } else {
-                return res.status(404).json({ "error": "invalid user" });
+                return res.status(503).json({ "error": "invalid user" });
             }
         })
         .catch(function(error) {

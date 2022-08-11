@@ -96,7 +96,9 @@ module.exports = {
                 })
                 return res.status(201).json({ "success": "Your bio has been updated" });
             } else {
+                // a modifier quand la sécurité id = id sera en place en 503 invalid user
                 return res.status(404).json({ "error": "user not found" });
+                // ----------------------------------------------------------------------
             }
         })
         .catch(function(error) {
@@ -118,7 +120,9 @@ module.exports = {
                 })
                 return res.status(200).json({ "success": "The user has been deleted" });
             } else {
+                // a modifier quand la sécurité id = id sera en place en 503 invalid user
                 return res.status(404).json({ "error": "user not found" });
+                // ----------------------------------------------------------------------
             }
         })
         .catch(function(error) {
@@ -127,17 +131,33 @@ module.exports = {
     },
 
     getUsersAll: (req, res) => {
-        models.Users.findAll({
-            attributes: ["id", "email", "firstname", "lastname"],
-         })
-         .then(function(usersFound) {
-             return res.status(200).json({ usersFound });
-         })
+        let headerAuth = req.headers['authorization'];
+        let userId = jwtUtils.getUserId(headerAuth);
+
+        models.Users.findOne({
+            where: { id : userId }
+        })
+        .then(function(userFound) {
+            if (userFound) {
+                models.Users.findAll({
+                    attributes: ["id", "email", "firstname", "lastname", "bio"]
+                })
+                .then(function(usersFound) {
+                    return res.status(200).json({ usersFound });
+                })
+                .catch(function(error) {
+                    return res.status(404).json({ "error": "no users found" });
+                })
+            } else {
+                return res.status(503).json({ "error": "invalid user" });
+            }
+        })
          .catch(function(error) {
-             return res.status(400).json({ "error": "no users found" });
+             return res.status(500).json({ "error": "unable to verify user" });
          })
     },
 
+    // to do : ajouter la sécurité qu'il faille etre logged in pour afficher un user profile
     getUsersByID: (req, res) => {
         let userId = req.params.id;
         models.Users.findOne({
@@ -152,7 +172,7 @@ module.exports = {
         }
         })
         .catch(function(error) {
-            return res.status(400).json({ "error": "user notnot found" });
+            return res.status(500).json({ "error": "cannot fetch user" });
         })    
     },
 
