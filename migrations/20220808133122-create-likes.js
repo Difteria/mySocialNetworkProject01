@@ -24,10 +24,6 @@ module.exports = {
           key: 'id'
         }
       },
-      isLiked: {
-        allowNull: false,
-        type: Sequelize.BOOLEAN
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

@@ -11,20 +11,27 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      models.Users.belongsToMany(models.posts, {
+        through: models.likes,
+        foreignKey: 'userId',
+        otherkey: 'postId'
+      });
+      models.posts.belongsToMany(models.Users, {
+        through: models.likes,
+        foreignKey: 'postId',
+        otherkey: 'userId'
+      });
       models.likes.belongsTo(models.Users, {
-        foreignKey: {
-          allowNull: false,
-        }
+        foreignKey: 'userId',
+        as: 'user'
       });
       models.likes.belongsTo(models.posts, {
-        foreignKey: {
-          allowNull: false,
-        }
+        foreignKey: 'postId',
+        as: 'posts'
       });
     }
   }
   likes.init({
-    isLiked: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'likes',

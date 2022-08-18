@@ -30,16 +30,16 @@ exports.router = (() => {
 
     // Comments Routes
 
-    apiRouter.route('/posts/comments/new/').post(commentsCtrl.createComment);
-    apiRouter.route('/posts/comments/all/').get(commentsCtrl.listComments);
-    apiRouter.route('/posts/comments/update/:comId').put(commentsCtrl.updateComment);
-    apiRouter.route('/posts/comments/delete/:comId').delete(commentsCtrl.deleteComment);
+    apiRouter.route('/posts/:id/comments/new/').post(commentsCtrl.createComment);
+    apiRouter.route('/posts/:id/comments/all/').get(commentsCtrl.listComments);
+    apiRouter.route('/posts/:id/comments/update/:comId').put(commentsCtrl.updateComment);
+    apiRouter.route('/posts/:id/comments/delete/:comId').delete(commentsCtrl.deleteComment);
 
     // Likes Routes
     
-    apiRouter.route('/posts/likes/like').post(likesCtrl.like);
-    apiRouter.route('/posts/likes/unlike').delete(likesCtrl.unlike);
-    apiRouter.route('/posts/likes/all').get(likesCtrl.listLikes);
+    apiRouter.route('/posts/:id/likes/like').post(likesCtrl.like);
+    apiRouter.route('/posts/:id/likes/unlike').post(likesCtrl.unlike);
+    // apiRouter.route('/posts/:id/likes/all').get(likesCtrl.listLikes);
 
     return apiRouter;
 })();

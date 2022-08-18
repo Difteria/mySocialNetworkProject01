@@ -26,12 +26,13 @@ module.exports = {
             where: { id: userId }
         })
         .then(function(userFound) {
+            console.log(userFound)
             if (userFound) {
                 models.posts.create({
                     title: title,
                     text: text,
-                    likes: 0,
-                    UserId: userFound.id
+                    likesCount: 0,
+                    userId: userFound.id
                 })
                 .then(function(newPost) {
                     return res.status(201).json( newPost );
@@ -62,7 +63,7 @@ module.exports = {
         .then(function(userFound) {
             if (userFound) {
                 models.posts.findAll({
-                    attributes: ["id", "userId", "title", "text"]
+                    attributes: ["id", "userId", "title", "text", "likesCount"]
                     // order: [(order != null) ? order.split(':') : ['title', 'ASC']],
                     // attributes: (fields !== '*' && fields != null) ? fields.split(',') : null,
                     // limit: (!isNaN(limit)) ? limit: null,
@@ -134,7 +135,7 @@ module.exports = {
     deletePost: function(req, res) {
         let headerAuth = req.headers['authorization'];
         let userId = jwtUtils.getUserId(headerAuth);
-
+ 
         let postId = req.params.id;
 
         models.Users.findOne({

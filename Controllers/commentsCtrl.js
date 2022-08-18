@@ -28,7 +28,7 @@ module.exports = {
             if (userFound) {
                 models.comments.create({
                     postId: postId,
-                    UserId: userFound.id,
+                    userId: userFound.id,
                     text: text
                 })
                 .then(function(newComment) {
@@ -51,7 +51,7 @@ module.exports = {
         let headerAuth = req.headers['authorization'];
         let userId = jwtUtils.getUserId(headerAuth);
 
-        // let postId = req.params.id;
+        let postId = req.params.id;
         let commentId = req.params.comId;
         let text = req.body.text;
 
@@ -94,7 +94,7 @@ module.exports = {
         let headerAuth = req.headers['authorization'];
         let userId = jwtUtils.getUserId(headerAuth);
 
-        // let postId = req.params.id;
+        let postId = req.params.id;
         let commentId = req.params.comId;
 
         models.Users.findOne({
@@ -111,7 +111,8 @@ module.exports = {
                     where: { id: commentId }
                 })
                 .then(function(commentFound) {
-                    if (userFound.id == commentFound.dataValues.UserId) {
+                    console.log(commentFound)
+                    if (userFound.id == commentFound.dataValues.userId) {
                         models.comments.destroy({
                             where: { id: commentId }
                         })
@@ -136,7 +137,7 @@ module.exports = {
         let headerAuth = req.headers['authorization'];
         let userId = jwtUtils.getUserId(headerAuth);
 
-        // let postId = req.params.id;
+        let postId = req.params.id;
 
         models.Users.findOne({
             where: { id : userId }
