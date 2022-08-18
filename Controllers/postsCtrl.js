@@ -16,10 +16,10 @@ module.exports = {
         let text = req.body.text;
 
         if (title == "" || text == "") {
-            return res.status(400).json({ "error": "missing info" });
+            return res.status(400).json({ "error (400)": "missing info" });
         }
         if (title.length <= TITLE_LIMIT || text.length <= TEXT_LIMIT) {
-            return res.status(400).json({ "error": "invalid info" });
+            return res.status(400).json({ "error (400)": "invalid info" });
         }
 
         models.Users.findOne({
@@ -38,14 +38,14 @@ module.exports = {
                     return res.status(201).json( newPost );
                 })
                 .catch(function(error) {
-                    return res.status(500).json({ "error": "cannot create post" });
+                    return res.status(500).json({ "error (500)": "cannot create post" });
                 })
             } else {
-                return res.status(503).json({ "error": "invalid user" });
+                return res.status(403).json({ "error (403)": "invalid user" });
             }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "unable to verify user" });
+            return res.status(500).json({ "error (500)": "unable to verify user" });
         })
     },
 
@@ -73,22 +73,22 @@ module.exports = {
                     //     attributes: [ "firstname" ]
                     // }]
                 })
-                .then(function(posts) {
-                    if (posts) {
-                        return res.status(200).json( posts );
+                .then(function(postFound) {
+                    if (postFound) {
+                        return res.status(200).json( postFound );
                     } else {
-                        return res.status(404).json({ "error": "no posts found" });
+                        return res.status(404).json({ "error (404)": "no posts found" });
                     }
                 })
                 .catch(function(error) {
-                    return res.status(500).json({ "error": "invalid fields" });
+                    return res.status(500).json({ "error (500)": "invalid fields" });
                 })
             } else {
-                return res.status(503).json({ "error": "invalid user" });
+                return res.status(403).json({ "error (403)": "invalid user" });
             }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "unable to verify user" });
+            return res.status(500).json({ "error (500)": "unable to verify user" });
         })
     },
 
@@ -115,20 +115,20 @@ module.exports = {
                             title: ( title ? title : postFound.title ),
                             text: ( text ? text : postFound.text )
                         })
-                        return res.status(201).json({ "success": "your post has been updated" });
+                        return res.status(200).json({ "success (200)": "your post has been updated" });
                     } else {
-                        return res.status(503).json({ "error": "you don't have the rights to update this post" });
+                        return res.status(403).json({ "error (403)": "you don't have the rights to update this post" });
                     }
                 })
                 .catch(function(error) {
-                    return res.status(404).json({ "error": "post not found" });
+                    return res.status(404).json({ "error (404)": "post not found" });
                 })
             } else {
-                return res.status(503).json({ "error": "invalid user" });
+                return res.status(403).json({ "error (403)": "invalid user" });
             }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "unable to verify user" });
+            return res.status(500).json({ "error (500)": "unable to verify user" });
         })
     },
 
@@ -152,20 +152,20 @@ module.exports = {
                         models.posts.destroy({
                             where: { id : postId }
                         })
-                        return res.status(200).json({ "success": "Your post has been deleted" });
+                        return res.status(200).json({ "success (200)": "Your post has been deleted" });
                     } else {
-                        return res.status(503).json({ "error": "you don't have the rights to delete this post" });
+                        return res.status(403).json({ "error (403)": "you don't have the rights to delete this post" });
                     }
                 })
                 .catch(function(error) {
-                    return res.status(404).json({ "error": "post not found" });
+                    return res.status(404).json({ "error (404)": "post not found" });
                 })
             } else {
-                return res.status(503).json({ "error": "invalid user" });
+                return res.status(403).json({ "error (403)": "invalid user" });
             }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "unable to verify user" });
+            return res.status(500).json({ "error (500)": "unable to verify user" });
         })
     }
 };

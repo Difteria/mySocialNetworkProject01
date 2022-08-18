@@ -13,7 +13,7 @@ module.exports = {
         let postId = req.params.id;
 
         if (postId <= 0) {
-            return res.status(400).json({ "error": "invalid parameters" });
+            return res.status(400).json({ "error (400)": "invalid parameters" });
         }
 
         models.posts.findOne({
@@ -41,28 +41,28 @@ module.exports = {
                                 postFound.update({
                                     likesCount: postFound.likesCount + 1
                                 })
-                                return res.status(200).json({ "success": "you liked the post" });
+                                return res.status(201).json({ "success (201)": "you liked the post" });
                                 // postFound.addUser(userFound)
                             } else {
-                                return res.status(409).json({ "error": "post already liked" });
+                                return res.status(409).json({ "error (409)": "post already liked" });
                             }
                         })
                         .catch(function(error){
-                            res.status(500).json({ "error": "unable to find likes" });
+                            res.status(500).json({ "error (500)": "unable to find likes" });
                         })
                     } else {
-                        return res.status(503).json({ "error": "invalid user" });
+                        return res.status(403).json({ "error (403)": "invalid user" });
                     }
                 })
                 .catch(function(error) {
-                    return res.status(500).json({ "error": "unable to verify user" });
+                    return res.status(500).json({ "error (500)": "unable to verify user" });
                 })
             } else {
-                return res.status(404).json({ "error": "post not found" });
+                return res.status(404).json({ "error (404)": "post not found" });
             }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "unable to find post" });
+            return res.status(500).json({ "error (500)": "unable to find post" });
         })
     },
 
@@ -73,7 +73,7 @@ module.exports = {
         let postId = req.params.id;
 
         if (postId <= 0) {
-            return res.status(400).json({ "error": "invalid parameters" });
+            return res.status(400).json({ "error (400)": "invalid parameters" });
         }
 
         models.posts.findOne({
@@ -100,28 +100,28 @@ module.exports = {
                                 postFound.update({
                                     likesCount: postFound.likesCount - 1
                                 })
-                                return res.status(200).json({ "success": "you unliked the post" });
+                                return res.status(200).json({ "success (200)": "you unliked the post" });
                                 // postFound.addUser(userFound)
                             } else {
-                                return res.status(409).json({ "error": "post not liked" });
+                                return res.status(409).json({ "error (409)": "post not liked" });
                             }
                         })
                         .catch(function(error){
-                            res.status(500).json({ "error": "unable to find likes" });
+                            res.status(500).json({ "error (500)": "unable to find likes" });
                         })
                     } else {
-                        return res.status(503).json({ "error": "invalid user" });
+                        return res.status(403).json({ "error (403)": "invalid user" });
                     }
                 })
                 .catch(function(error) {
-                    return res.status(500).json({ "error": "unable to verify user" });
+                    return res.status(500).json({ "error (500)": "unable to verify user" });
                 })
             } else {
-                return res.status(404).json({ "error": "post not found" });
+                return res.status(404).json({ "error (404)": "post not found" });
             }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "unable to find post" });
+            return res.status(500).json({ "error (500)": "unable to find post" });
         })
     },
 

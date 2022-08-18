@@ -15,10 +15,10 @@ module.exports = {
         let password = req.body.password;
         let bio = req.body.bio;
         if (firstname == "" || lastname == "" || email == "" || password == "") {
-            return res.status(400).json({ "error": "Missing Info" });
+            return res.status(400).json({ "error (400)": "Missing Info" });
         }
         if (!validator.isEmail(email)) {
-            return res.status(400).json({ "error": "invalid email" });   
+            return res.status(400).json({ "error (400)": "invalid email" });   
          }
         models.Users.findOne({
             attributes: ["email"] ,
@@ -36,18 +36,18 @@ module.exports = {
                         isAdmin: 0
                     })
                     .then(function(newUser) {
-                        return res.status(201).json({ "success": "user added", "userId": newUser.id });
+                        return res.status(201).json({ "success (201)": "user added", "userId": newUser.id });
                     })
                     .catch(function(error) {
-                        return res.status(500).json({ "error": "cannot add user" });
+                        return res.status(500).json({ "error (500)": "cannot add user" });
                     })
                 })
             } else {
-                return res.status(409).json({ "error": "user already exists" });
+                return res.status(409).json({ "error (409)": "user already exists" });
             }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "unable to verify user" });
+            return res.status(500).json({ "error (500)": "unable to verify user" });
         })
     },
 
@@ -56,7 +56,7 @@ module.exports = {
         let password = req.body.password;
 
         if (email == "" || password == "") {
-            return res.status(400).json({ "error": "one or more fields are empty"});
+            return res.status(400).json({ "error (400)": "one or more fields are empty"});
         }
         models.Users.findOne({
             where: { email: email }
@@ -65,17 +65,17 @@ module.exports = {
             if (userFound) {
                 bcrypt.compare(password, userFound.password, function(errorBcrypt, resBcrypt) {
                     if(resBcrypt) {
-                        return res.status(200).json({ "userId": userFound.id, "first name": userFound.firstname, "token": jwtUtils.generateTokenForUser(userFound) });
+                        return res.status(200).json({ "success (200)": "successfully logged in", "userId": userFound.id, "first name": userFound.firstname, "token": jwtUtils.generateTokenForUser(userFound) });
                     } else {
-                        return res.status(403).json({ "error": "invalid password" });
+                        return res.status(403).json({ "error (403)": "invalid password" });
                     }
                 })
             } else {
-                return res.status(404).json({ "error": "user not found" });
+                return res.status(404).json({ "error (404)": "user not found" });
             }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "unable to verify user" });
+            return res.status(500).json({ "error (500)": "unable to verify user" });
         })
 
     },
@@ -83,26 +83,38 @@ module.exports = {
     update: (req, res) => {
         let headerAuth = req.headers['authorization'];
         let userId = jwtUtils.getUserId(headerAuth);
+        
+        let firstname = req.body.firstname;
+        let lastname = req.body.lastname;
+        // let email = req.body.email;
+        let password = req.body.password;
         let bio = req.body.bio;
 
         models.Users.findOne({
-            attributes: ["id", "bio"],
+            attributes: ["id", "firstname", "lastname", "email", "bio"],
             where: { id : userId }
         })
         .then(function(userFound) {
             if (userFound) {
                 userFound.update({
+                    firstname: (firstname ? firstname : userFound.firstname),
+                    lastname: (lastname ? lastname : userFound.lastname),
+                    // email: (email ? email : userFound.email),
+                    password: (password ? password : userFound.password),
                     bio: (bio ? bio : userFound.bio)
                 })
-                return res.status(201).json({ "success": "Your bio has been updated" });
+                bcrypt.hash(password, 5, function(error, bcryptedPassword) {
+                    userFound.update({
+                        password: bcryptedPassword
+                    })
+                })
+                return res.status(200).json({ "success (200)": "Your infos has been updated" });
             } else {
-                // a modifier quand la sécurité id = id sera en place en 503 invalid user
-                return res.status(404).json({ "error": "user not found" });
-                // ----------------------------------------------------------------------
+                return res.status(404).json({ "error (404)": "user not found" });
             }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "unable to verify user" });
+            return res.status(500).json({ "error(500)": "unable to verify user" });
         })
     },
 
@@ -118,15 +130,13 @@ module.exports = {
                 models.Users.destroy({
                     where: { id : userId }
                 })
-                return res.status(200).json({ "success": "The user has been deleted" });
+                return res.status(200).json({ "success (200)": "The user has been deleted" });
             } else {
-                // a modifier quand la sécurité id = id sera en place en 503 invalid user
-                return res.status(404).json({ "error": "user not found" });
-                // ----------------------------------------------------------------------
+                return res.status(404).json({ "error (404)": "user not found" });
             }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "unable to verify user"});
+            return res.status(500).json({ "error (500)": "unable to verify user"});
         })
     },
 
@@ -146,41 +156,58 @@ module.exports = {
                     return res.status(200).json({ usersFound });
                 })
                 .catch(function(error) {
-                    return res.status(404).json({ "error": "no users found" });
+                    return res.status(404).json({ "error (404)": "no users found" });
                 })
             } else {
-                return res.status(503).json({ "error": "invalid user" });
+                return res.status(403).json({ "error (403)": "invalid user" });
             }
         })
          .catch(function(error) {
-             return res.status(500).json({ "error": "unable to verify user" });
+             return res.status(500).json({ "error (500)": "unable to verify user" });
          })
     },
 
-    // to do : ajouter la sécurité qu'il faille etre logged in pour afficher un user profile
     getUsersByID: (req, res) => {
+
+        let headerAuth = req.headers['authorization'];
+        let userLoggedId = jwtUtils.getUserId(headerAuth);
+
         let userId = req.params.id;
+
         models.Users.findOne({
-            attributes: ["id", "email", "firstname", "lastname", "bio"],
-            where: { id : userId }
+            where: { id : userLoggedId }
         })
-        .then(function(userFound) {
-            if(userFound) {               
-            return res.status(200).json({ userFound })
+        .then(function(userLoggedFound) {
+            if(userLoggedFound) {               
+                models.Users.findOne({
+                    attributes: ["id", "email", "firstname", "lastname", "bio"],
+                    where: { id: userId }
+                })
+                .then(function(userFound) {
+                    if (userFound) {
+                        return res.status(200).json({ userFound });
+                    } else {
+                        return res.status(404).json({ "error (404)": "user not found" });
+                    }
+                })
+                .catch(function(error) {
+                    return res.status(500).json({ "error (500)": "cannot fetch user" });
+                })
         } else {
-            return res.status(404).json({ "error": "user not found" });
+            return res.status(403).json({ "error (403)": "invalid user" });
         }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "cannot fetch user" });
+            return res.status(500).json({ "error (500)": "cannot verify user" });
         })    
     },
 
     getUsersProfile: (req, res) => {
         let headerAuth = req.headers['authorization'];
         let userId = jwtUtils.getUserId(headerAuth);
+
         if (userId < 0) {
-            return res.status(400).json({ "error": "wrong token" });
+            return res.status(400).json({ "error (400)": "wrong token" });
         }
 
         models.Users.findOne({
@@ -189,13 +216,13 @@ module.exports = {
         })
         .then(function(user) {
             if (user) {
-                return res.status(201).json(user);
+                return res.status(200).json(user);
             } else {
-                return res.status(404).json({ "error": "user not found" });
+                return res.status(404).json({ "error (404)": "user not found" });
             }
         })
         .catch(function(error) {
-            return res.status(500).json({ "error": "cannot fetch user" });
+            return res.status(500).json({ "error '500)": "cannot fetch user" });
         })
     }
 };
